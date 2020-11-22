@@ -29,9 +29,16 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToOne
+    @JoinColumn(name = "delivery_id")
     private Delivery delivery;
+    /*
+     * OneToOne 관계의 경우 어느쪽에 FK를 둬도 상관은 없음, 보통 액세스를 많이 하는쪽에 FK를 지정함.
+     * 보통의 경우 Order -> Delivery 접근 방식이 많기 때문에 Order에 FK를 지정하고 관계의 주인으로 지정함.
+     * */
 
     private LocalDateTime orderDate; //주문 시간
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status; //enum type, 주문 상태 [ORDER, CANCEL]
 }
