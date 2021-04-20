@@ -61,7 +61,7 @@ ex) @GeneratedValue(strategy = GenerationType.IDENTITY) 와 같은 방식으로 
 
 **@Enumerated**
 > EnumType은 (EnumType.ORDINAL), (EnumType.STRING) 두가지가 있음.
-- ORDINAL - enum value를 1, 2, 3, .... sequentiall 하게 지정한다. 중간에 enum value가 추가될 경우, 순서가 맞지 않아 장애가 발생할 수 있으므로 운영 환경에 적합하지 않음.
+- ORDINAL - enum value를 1, 2, 3, .... sequential 하게 지정한다. 중간에 enum value가 추가될 경우, 순서가 맞지 않아 장애가 발생할 수 있으므로 운영 환경에 적합하지 않음.
 - STRING - enum value를 string 그대로 지정한다.
 
 ORDINAL을 쓰지말고 STRING을 써야함.
