@@ -74,4 +74,61 @@ ORDINAL을 쓰지말고 STRING을 써야함.
 
 
 JPA의 기본 스펙은 엔티티에 기본 생성자가 필수로 있어야 한다. 하지만 하이버네이트 같은 구현체들은 조금 더 유연하게 바이트 코드를  조작하는 라이브러리등을 통해서 이런 문제를 회피한다. 완벽한 해결책은 아니므로 상황에 따라 다르다.  
-기본 가이드를 따라 기본 생성자를 넣어주어야 한다.
+기본 가이드를 따라 기본 생성자를 넣어주어야 한다.  
+
+**엔티티 설계시 주의점**
+
+- 엔티티에는 가급적 Setter를 사용하지 X  
+   Setter가 모두 열려있다면, 변경 포인트가 너무 많기 때문에 유지보수가 어렵다.
+ - 모든 연관관계는 지연 로딩(`LAZY`)으로 설정하자.
+    >즉시로딩(`EAGER`) 은 예측이 어렵고, 어떤 SQL이 실행될지 추적하기 어려움.   
+        JPQL을 실행할 때 N+1 문제 자주 발생  
+        하나의 엔티티를 조회하면 연관된 엔티티를 모두 DB 에서 끌고옴. -> 사용하지 않는것이 좋음  
+    
+    실무에서 모든 연관관계는 지연로딩으로 설정해야한다.  
+    지연로딩으로 설정해도 연관된 데이터를 DB에서 조회할 수 있음 -> fetch join or 엔티티 그래프 사용  
+    @XToOne(OneToOne, ManyToOne) 관계는 기본이 즉시로딩이기 때문에 직접 지연로딩으로 설정해야함.  
+    (@XToMany는 기본 값이 지연로딩임)  
+
+   보통 즉시로딩을 사용하는 이유 : Transaction 밖에서 Lazy loading이 실행되지 않아서..  
+   -> 트랜잭션을 좀 빨리 가져오거나 Open-Session-In-View 를 통해 해결할 수 있음.  
+   궁극적으로 fetch join을 통해 모두 해결할 수 있음.  
+   ```Open-Session-In-View (Default는 true) : OSIV 설정을 true 로 지정했을 경우,  
+   사용자에게 응답 또는 View가 렌더링 될 때까지 영속성 컨텍스트를 유지함  
+   -> 영속성 컨텍스트를 유지한다는 것은 곧 DB Connection을 계속 소유하고 있다는 것  
+   실시간 트래픽이 중요한 어플리케이션에서는 문제가 될 수 있다. 
+
+- 컬렉션은 필드에서 초기화  
+   > 하이버네이트는 엔티티를 영속화할때, 컬렉션을 감싸서 하이버네이트가 제공하는 내장 컬렉션으로 변경  
+   임의의 메서드에서 컬렉션을 잘못 생성하면 하이버네이트 내부 메커니즘에 문제가 발생할 수 있으니 필드 레벨에서 초기화 하는 것이 가장 안전하고 코드도 간결, null 문제에서도 자유로울 수 있음.
+
+- 테이블, 컬럼명 생성 전략  
+  하이버네이트 기존 구현 : 엔티티의 필드명을 그대로 테이블 명으로 사용  
+  (SpringPhysicalNamingStrategy)  
+  스프링 부트 신규 설정 : 엔티티(필드) -> 테이블(컬럼)  
+   1. 카멜 케이스 -> 언더스코어 (memberPoint -> member_point)  
+   2. .(dot) -> _(underScore)  
+   3. 대문자 -> 소문자  
+  
+    사내에 전사 전략이 정해져 있는 경우, SpringPhysicalNamingStrategy를 참고하여 수정, 적용할 수 있음.  
+    1. 논리명 생성 : 명시적으로 컬럼, 테이블명을 직접 적지 않으면 implicitNamingStrategy 사용  
+    2. 물리명 생성 : 컬럼, 테이블명을 명시하거나 명시하지 않거나 모든 상황에 적용됨.   
+
+- Cascade 전략  
+  모든 Entity는 저장하려면 각각 Persist 해야함.  
+  하지만 Cascade 전략을 ALL로 지정했을때는 Persist를 전파하기 때문에 각각 할 필요가 없음.  
+  Delete 할때도 함께 지움.  
+  ```java
+  public class Order {
+	  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	  private List<OrderItem> orderItems = new ArrayList<>();
+
+     //위와 같은 구조일 경우 Cascade 전략을 ALL로 지정하지 않았을 경우
+     persist(orderItemA)
+     persist(orderItemB)
+     persist(orderItemC)
+     persist(order)
+
+    //Cascade 전략을 ALL 로 지정했을 경우
+    persist(order)
+  }
