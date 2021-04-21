@@ -93,7 +93,8 @@ JPA의 기본 스펙은 엔티티에 기본 생성자가 필수로 있어야 한
    보통 즉시로딩을 사용하는 이유 : Transaction 밖에서 Lazy loading이 실행되지 않아서..  
    -> 트랜잭션을 좀 빨리 가져오거나 Open-Session-In-View 를 통해 해결할 수 있음.  
    궁극적으로 fetch join을 통해 모두 해결할 수 있음.  
-   ```Open-Session-In-View (Default는 true) : OSIV 설정을 true 로 지정했을 경우,  
+   ```
+   Open-Session-In-View (Default는 true) : OSIV 설정을 true 로 지정했을 경우,  
    사용자에게 응답 또는 View가 렌더링 될 때까지 영속성 컨텍스트를 유지함  
    -> 영속성 컨텍스트를 유지한다는 것은 곧 DB Connection을 계속 소유하고 있다는 것  
    실시간 트래픽이 중요한 어플리케이션에서는 문제가 될 수 있다. 
