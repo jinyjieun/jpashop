@@ -14,7 +14,7 @@ public class Delivery {
     @Column(name="delivery_id")
     private Long id;
 
-    @OneToOne(mappedBy = "delivery")
+    @OneToOne(mappedBy = "delivery", fetch = FetchType.LAZY)
     private Order order;
     //관계의 주인이 Order이기 때문에 delivery에 mappedBy를 설정해줌.
 
