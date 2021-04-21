@@ -130,6 +130,6 @@ JPA의 기본 스펙은 엔티티에 기본 생성자가 필수로 있어야 한
      persist(orderItemC)
      persist(order)
 
-    //Cascade 전략을 ALL 로 지정했을 경우
-    persist(order)
+     //Cascade 전략을 ALL 로 지정했을 경우
+     persist(order)
   }
