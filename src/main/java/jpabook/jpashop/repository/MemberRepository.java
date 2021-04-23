@@ -1,6 +1,7 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Member;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -8,15 +9,21 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class MemberRepository {
     /*
     * Repository는 DAO와 비슷한 개념이라고 보면 됨.
     * @Repository 어노테이션은 스프링이 제공하는 기본타입, 컴포넌트 스캔의 대상이 되는 어노테이션
     * 컴포넌트 스캔의 대상이 되서 자동으로 스프링 빈에 등록이 됨.
+    *
+    * 스프링 부트 + 스프링 데이터 JPA를 쓰면 @PersistenceContext -> @Autowired 로 바꿀 수 있음.
+    * 스프링 데이터 JPA가 지원함.(스프링 데이터 JPA를 사용하지 않으면 아래와 같이 사용할 수 없음. 원래 엔티티 매니저는 @PersistenceContext 표준 어노테이션이 있어야만 인젝션됨)
+    *
+    * @PersistenceContext
+    * private EntityManager em; -> 그래서 이런식으로 안써도 되고 아래와 같이 사용해도 됨. (아래와 같이 사용하려면 @RequiredArgsConstructor)
     * */
 
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
     //엔티티 매니저 생성하는거는 부트가 알아서 해서 주입해줌.
 
     //커맨드와 쿼리를 분리해라.
