@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    #H2는 Java로 돌기때문에 JVM 안에서 띄울 수 있음. In-memory 모드로 DB 활용
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      #자동으로 table을 만들어주는 mode
+      #Application 실행 시점에 내가 가지고 있는 정보를 모두 지우고 다시 생성함.
+      #실행시점에 모든 테이블을 지우고 재생성하기때문에 운영 환경에서는 절대 create 모드를 사용하면 안됨.
+      #내렸다 다시 올리면 기존 데이터가 몽땅 사라지는 매직..
+
+      #Spring Boot는 기본적으로 create-drop 으로 돌아간다.
+      #create : 실행 시 내가 가진 Entity 먼저 drop 하고 create 함.
+      #create-drop : 실행 시 Entity Create 하고 종료 시점에 모두 drop 함.
+    properties:
+      hibernate:
+        #show_sql: true
+        #hibernate가 생성하는 sql이 모두 보이게 하는 옵션
+        #운영 환경에서 log들은 System.out으로 찍으면 절대 안됨
+        format_sql: true
+
+#Spring Boot 자체가 위 datasource 와 jpa 에 별도의 설정이 없을 경우, 메모리 모드로 실행해버림.
+#그래서 메모리 모드로 실행할거면 위에 설정한 내용 하나도 없어도 됨.
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    #hibernate가 생성하는 sql이 모두 보이는 option
+    #위의 show_sql과의 차이점 : show_sql은 System.out으로 log를 찍고, org.hibernate.SQL은 logger를 활용해서 log를 찍음
+    org.hibernate.type: trace
+    #이 옵션을 넣으면 log에 쿼리 파라미터가 ?가 나오는거를 따로 값으로 (아래쪽에 표시해줌.)
+    #외부 라이브러리(spring-boot-data-source-decorator)를 사용하면 (? 자리에 바로 값이 나오게 할수도 있음.)
