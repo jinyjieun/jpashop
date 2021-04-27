@@ -1,6 +1,8 @@
 package jpabook.jpashop.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
     //DB의 order by 예약어 때문에 order라는 이름은 대부분 사용할 수 없음.
     //@Table(name = "orders") 로 Table 이름을 명시해주면 orders 라는 테이블이 생성됨.
