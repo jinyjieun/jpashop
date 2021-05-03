@@ -164,8 +164,9 @@ Book Object는 새로 생성이 되었지만 JPA가 식별할 수 있는 ID 식�
 준영속 엔티티인 Book 의 경우 아무리 데이터를 바꿔치기 하더라도,  
 `itemService.saveItem(book);` 를 통해 Persist 혹은 merge 하지 않을 경우 더티 체킹이 동작하지 않기 때문에 변경 내용이 Update 되지 않음.
     
-####준영속 엔티티를 수정할 수 있는 두가지 방법
-######변경 감지
+준영속 엔티티를 수정할 수 있는 두가지 방법
+--
+**변경 감지**
 ``` java
     @Transactional
     public void updateItem(Long itemId, String name, int price, int stockQuantity) {
@@ -177,7 +178,7 @@ Book Object는 새로 생성이 되었지만 JPA가 식별할 수 있는 ID 식�
 ```
 영속성 컨텍스트 안에서 영속 엔티티를 조회한 후에 데이터를 수정하여 Transaction Commit 시점에 더티 체킹이 동작할 수 있도록 한다.
 
-######병합(Merge)
+**병합(Merge)**
 ``` java
     @Transactional
     void update(Item itemParam) {
