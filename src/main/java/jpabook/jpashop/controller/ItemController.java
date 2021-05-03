@@ -64,17 +64,13 @@ public class ItemController {
     }
 
     @PostMapping("/items/{itemId}/edit")
-    public String updateItem(@PathVariable String itemId, @ModelAttribute("form") BookForm form) {
+    public String updateItem(@PathVariable Long itemId, @ModelAttribute("form") BookForm form) {
 
-        Book book = new Book();
-        book.setId(form.getId());
-        book.setAuthor(form.getAuthor());
-        book.setName(form.getName());
-        book.setIsbn(form.getIsbn());
-        book.setPrice(form.getPrice());
-        book.setStockQuantity(form.getStockQuantity());
+        //준영속 상태의 엔티티를 변경하는 방법은 두가지가 있음.
+        //1. 변경감지
+        //2. merge
+        itemService.updateItem(itemId, form.getName(), form.getPrice(), form.getStockQuantity());
 
-        itemService.saveItem(book);
         return "redirect:/items";
     }
 }

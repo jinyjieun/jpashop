@@ -133,3 +133,71 @@ JPA의 기본 스펙은 엔티티에 기본 생성자가 필수로 있어야 한
      //Cascade 전략을 ALL 로 지정했을 경우
      persist(order)
   }
+  ```
+## 변경 감지와 병합(Merge)
+
+JPA에서 데이터를 변경할때의 기본 메커니즘은 변경 감지(Dirty Checking)
+> 변경 데이터를 감지해서 Transaction Commit 시점에 자동으로 Update 한다.
+
+문제는 **준영속 엔티티**의 경우  
+`준영속 엔티티 : 영속성 컨텍스트가 더이상 관리하지 않는 엔티티`
+
+``` java
+    @PostMapping(value = "/items/{itemId}/edit")
+    public String updateItem(@ModelAttribute("form") BookForm form) {
+        Book book = new Book();
+        book.setId(form.getId());
+        book.setName(form.getName());
+        book.setPrice(form.getPrice()); book.setStockQuantity(form.getStockQuantity());
+        book.setAuthor(form.getAuthor());
+        book.setIsbn(form.getIsbn());
+    
+        itemService.saveItem(book);
+        return "redirect:/items";
+    }
+```
+Book Object는 새로 생성이 되었지만 JPA가 식별할 수 있는 ID 식별자를 가지고 있음. (DB를 한번 거친 데이터)  
+
+준영속 엔티티 : JPA가 관리하지 않음.  
+영속 엔티티 : JPA가 관리하며, 변경이 일어나는지 예의주시 하고 있다가 변경 내용을 Transaction Commit 시점에 모두 Update 함.
+
+준영속 엔티티인 Book 의 경우 아무리 데이터를 바꿔치기 하더라도,  
+`itemService.saveItem(book);` 를 통해 Persist 혹은 merge 하지 않을 경우 더티 체킹이 동작하지 않기 때문에 변경 내용이 Update 되지 않음.
+    
+####준영속 엔티티를 수정할 수 있는 두가지 방법
+######변경 감지
+``` java
+    @Transactional
+    public void updateItem(Long itemId, String name, int price, int stockQuantity) {
+
+        Item findItem = itemRepository.findOne(itemId);
+
+        findItem.change(name, price, stockQuantity);
+    }
+```
+영속성 컨텍스트 안에서 영속 엔티티를 조회한 후에 데이터를 수정하여 Transaction Commit 시점에 더티 체킹이 동작할 수 있도록 한다.
+
+######병합(Merge)
+``` java
+    @Transactional
+    void update(Item itemParam) {
+        
+        Item mergeItem = em.merge(item);
+    }
+```
+ 1. 파라미터로 넘어온 준영속 엔티티의 식별자 값으로 1차 캐시에서 엔티티를 조회한다.
+      만약, 1차 캐시에 엔티티가 없으면 데이터베이스에서 엔티티를 조회하고 1차 캐시에 저장.
+ 2. 조회한 영속 엔티티에 준영속 엔티티의 값으로 모두 교체한다.
+ 3. 영속 상태인 mergeItem 을 반환한다.
+ 4. Transaction Commit 시점에 더티 체킹이 동작해 영속 엔티티인 merge Item 의 Update가 실행된다. 
+
+변경되는 로직 자체는 변경 감지와 병합이 **완벽하게 동일하다.**  
+But, 약간의 차이가 있음.
+
+> 변경 감지 기능을 사용하면, 원하는 속성만 선택해서 변경할 수 있지만, 병합을 사용하면 모든 속성이 변경된다.  
+> 모든 필드를 교체하기 때문에 병합 시 해당하는 값이 없다면 `null` 로 업데이트 할 위험이 있다.   
+> 실무에서는 업데이트 기능이 매우 제한적이다. 병합 시 값이 없다면 `null` 로 업데이트 하는 문제를 해결하려면, 변경 폼  
+> 화면에서 모든 데이터를 항상 유지해야 하는데 보통 변경 가능한 데이터만 노출하기 때문에 병합을 사용하는 것은 매우 번거롭다.   
+> 때문에 웬만하면 **변경감지**를 활용하는 편이 좋다.  
+
+
