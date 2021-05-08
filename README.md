@@ -148,7 +148,8 @@ JPA에서 데이터를 변경할때의 기본 메커니즘은 변경 감지(Dirt
         Book book = new Book();
         book.setId(form.getId());
         book.setName(form.getName());
-        book.setPrice(form.getPrice()); book.setStockQuantity(form.getStockQuantity());
+        book.setPrice(form.getPrice());
+        book.setStockQuantity(form.getStockQuantity());
         book.setAuthor(form.getAuthor());
         book.setIsbn(form.getIsbn());
     
